@@ -9,7 +9,8 @@
       text-align: center;
       padding-top: 50px;
       background-color: #ffe6f0;
-      overflow-x: hidden;
+      overflow: hidden;
+      height: 100vh;
     }
     h1 {
       color: #ff3366;
@@ -27,6 +28,7 @@
       border-radius: 10px;
       cursor: pointer;
       transition: transform 0.2s;
+      position: relative;
     }
     button:hover {
       transform: scale(1.1);
@@ -38,16 +40,20 @@
     .non {
       background-color: #ccc;
       color: #666;
-      cursor: not-allowed;
+      position: absolute;
     }
-    .heart {
+    .heart, .balloon {
       position: fixed;
       font-size: 24px;
-      animation: fall 4s linear infinite;
+      pointer-events: none;
     }
     @keyframes fall {
       0% { transform: translateY(-50px); opacity:1; }
       100% { transform: translateY(100vh); opacity:0; }
+    }
+    @keyframes rise {
+      0% { transform: translateY(100vh); opacity:1; }
+      100% { transform: translateY(-100px); opacity:0; }
     }
     #message-secret {
       font-size: 24px;
@@ -66,29 +72,65 @@
     <button class="oui">OUI 💖</button>
   </a>
   
-  <!-- Bouton NON (désactivé) -->
-  <button class="non" disabled>NON ❌</button>
+  <!-- Bouton NON -->
+  <button class="non" id="nonBtn">NON ❌</button>
   
-  <!-- Message secret après clic -->
+  <!-- Message secret -->
   <div id="message-secret">Youpi ! 💕 Merci d'être mon Valentin ! 😍</div>
 
   <script>
-    // Afficher le message secret quand OUI est cliqué
+    // Message secret quand OUI cliqué
     document.getElementById('oui-lien').addEventListener('click', function() {
       document.getElementById('message-secret').style.display = 'block';
     });
 
-    // Créer des cœurs qui tombent
+    // Cœurs qui tombent
     function createHeart() {
       const heart = document.createElement('div');
       heart.className = 'heart';
       heart.style.left = Math.random() * window.innerWidth + 'px';
       heart.style.fontSize = (20 + Math.random()*30) + 'px';
+      heart.style.color = ['#ff3366','#ff6699','#ff99cc'][Math.floor(Math.random()*3)];
       heart.innerHTML = '❤️';
+      heart.style.animation = 'fall 4s linear forwards';
       document.body.appendChild(heart);
       setTimeout(() => heart.remove(), 4000);
     }
     setInterval(createHeart, 300);
+
+    // Ballons qui montent
+    function createBalloon() {
+      const balloon = document.createElement('div');
+      balloon.className = 'balloon';
+      balloon.style.left = Math.random() * window.innerWidth + 'px';
+      balloon.style.fontSize = (20 + Math.random()*40) + 'px';
+      balloon.style.color = ['#ff3366','#ff6699','#ff99cc','#ffccdd'][Math.floor(Math.random()*4)];
+      balloon.innerHTML = '🎈';
+      balloon.style.animation = 'rise 6s linear forwards';
+      document.body.appendChild(balloon);
+      setTimeout(() => balloon.remove(), 6000);
+    }
+    setInterval(createBalloon, 800);
+
+    // Bouton NON qui s'échappe
+    const nonBtn = document.getElementById('nonBtn');
+    nonBtn.style.top = '200px';
+    nonBtn.style.left = '50%';
+
+    document.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      const rect = nonBtn.getBoundingClientRect();
+      const offset = 100; // distance à fuir
+
+      if(x > rect.left - offset && x < rect.right + offset &&
+         y > rect.top - offset && y < rect.bottom + offset) {
+        let newX = Math.random() * (window.innerWidth - rect.width);
+        let newY = Math.random() * (window.innerHeight - rect.height);
+        nonBtn.style.left = newX + 'px';
+        nonBtn.style.top = newY + 'px';
+      }
+    });
   </script>
 </body>
 </html>
